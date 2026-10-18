@@ -291,7 +291,7 @@ If the narrative script uses the Google Gen AI API, set your API key as an envir
 export GEMINI_API_KEY="your_api_key_here"
 ```
 
-Never commit API keys or other secrets to GitHub. If no API key is configured, the script should use its offline fallback if that feature is implemented.
+**AI-powered narrative generation (optional):** The project includes an offline narrative fallback, so it can run without an API key. To enable online narrative generation, configure your own GEMINI_API_KEY environment variable. Never commit API keys or other secrets to the repository.
 
 ## Future Improvements
 

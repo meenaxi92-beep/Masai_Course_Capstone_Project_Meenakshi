@@ -146,22 +146,6 @@ Do not include JSON, introductory text, or a conclusion outside SCR.
             "message": str(err)
         }
 
-
-# Try the online narrative first; fall back to offline if unavailable
-if key:
-    result = generate_scr_narrative(findings)
-else:
-    result = {
-        "status": "error",
-        "message": "No API key available"
-    }
-
-if result["status"] != "success":
-    print("Online generation unavailable. Using offline fallback.")
-    result = generate_scr_narrative_offline(findings)
-
-print(json.dumps(result, indent=2))
-
 """**SITUATION**
 
 Our analytics pipeline has established a cleaned total revenue baseline of INR 97,358.30. This assessment 
@@ -247,6 +231,21 @@ in Tier 2 cities and validate the observed pattern with additional data.
         "narrative": narrative,
         "tokens": 0
     }
+
+# Try the online narrative first; fall back to offline if unavailable
+if key:
+    result = generate_scr_narrative(findings)
+else:
+    result = {
+        "status": "error",
+        "message": "No API key available"
+    }
+
+if result["status"] != "success":
+    print("Online generation unavailable. Using offline fallback.")
+    result = generate_scr_narrative_offline(findings)
+
+print(json.dumps(result, indent=2))
 
 ## Testing the offline function
 

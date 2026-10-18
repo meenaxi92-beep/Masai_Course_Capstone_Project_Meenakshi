@@ -22,6 +22,15 @@ import numpy as np
 import json
 from pathlib import Path
 
+# Define project paths
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_DIR / "Data"
+NARRATOR_DIR = PROJECT_DIR / "Narrator"
+
+# Create output directories if they don't exist
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+NARRATOR_DIR.mkdir(parents=True, exist_ok=True)
+
 ## LOAD AND INSPECT
 
 customers = pd.read_csv(
@@ -525,7 +534,7 @@ _, value_cutoffs = pd.qcut(
 import json #### This includes the additional hypotheses to find a solution for resolution & improvement
 
 # Save cleaned dataset for visualize.py
-orders_clean.to_csv('/content/orders_clean.csv', index=False)
+orders_clean.to_csv(DATA_DIR / "orders_clean.csv", index=False)
 
 # Define the raw total revenue from SQL (Part 1)
 raw_total_revenue = 99860.2
@@ -597,8 +606,9 @@ findings = {
 }
 
 # Write findings.json for Part 3 (saving directly to /content/findings.json)
-with open('/content/findings.json', 'w') as f:
+with open(NARRATOR_DIR / "findings.json", 'w', encoding="utf-8") as f:
     json.dump(findings, f, indent=4)
+
 
 print("\n=== FINDINGS.JSON CREATED ===")
 print(json.dumps(findings, indent=4))

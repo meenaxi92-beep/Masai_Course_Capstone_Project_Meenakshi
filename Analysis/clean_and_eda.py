@@ -24,18 +24,17 @@ from pathlib import Path
 
 ## LOAD AND INSPECT
 
-customers = pd.read_csv('/content/DATA_CUSTOMERS.csv')
-# print("=== CUSTOMERS DATA SHAPE ===")
-# print(customers.shape)
+customers = pd.read_csv(
+    'https://raw.githubusercontent.com/meenaxi92-beep/Masai_Course_Capstone_Project_Meenakshi/main/Data/DATA_CUSTOMERS.csv'
+)
 
-orders = pd.read_csv('/content/DATA_ORDERS.csv')
-# print("=== ORDERS DATA SHAPE ===")
-# print(orders.shape)
+orders = pd.read_csv(
+    'https://raw.githubusercontent.com/meenaxi92-beep/Masai_Course_Capstone_Project_Meenakshi/main/Data/DATA_ORDERS.csv'
+)
 
-products = pd.read_csv('/content/DATA_PRODUCTS.csv')
-# print("=== PRODUCTS DATA SHAPE ===")
-# print(products.shape)
-
+products = pd.read_csv(
+    'https://raw.githubusercontent.com/meenaxi92-beep/Masai_Course_Capstone_Project_Meenakshi/main/Data/DATA_PRODUCTS.csv'
+)
 ## Before cleaning
 # orders.head()
 
@@ -44,10 +43,9 @@ products = pd.read_csv('/content/DATA_PRODUCTS.csv')
 ## Correct casing of payment_method to make it more cohesive
 orders['payment_method'] = orders['payment_method'].str.strip().str.upper()
 
-# print(f"PAYMENT METHOD: {orders['payment_method'].unique()}")
-
 ## Payment_Method head counts
-orders['payment_method'].value_counts()
+print("\n=== PAYMENT METHODS AFTER STANDARDISATION ===")
+print(orders['payment_method'].value_counts())
 
 ## Task 3 - Remove duplicate orders
 
@@ -60,16 +58,16 @@ duplicate_mask = orders.duplicated(
     ],
     keep='first'
 )
-
-# Print the duplicate order IDs
-print("DUPLICATE ORDER IDs:")
-print(orders.loc[duplicate_mask, 'order_id'])
+# Count duplicate rows before removing them
+duplicate_count = int(duplicate_mask.sum())
 
 # Remove duplicate rows
-orders_clean = orders[~duplicate_mask].copy()
+orders_clean = orders.loc[~duplicate_mask].copy()
 
-# Check the cleaned shape
-print("CLEANED DATA SHAPE:", orders_clean.shape)
+print("\n=== DUPLICATE REMOVAL ===")
+print(f"Duplicate rows removed: {duplicate_count}")
+print(f"Rows before cleaning: {len(orders)}")
+print(f"Rows after duplicate removal: {len(orders_clean)}")
 
 ## Task 4 - Impute missing values
 
@@ -111,7 +109,7 @@ orders_clean['order_value'] = (
 # Calculate total cleaned revenue
 cleaned_revenue = orders_clean['order_value'].sum()
 
-print("CLEANED TOTAL ORDER VALUE:", round(cleaned_revenue, 2))
+# print("CLEANED TOTAL ORDER VALUE:", round(cleaned_revenue, 2))
 
 # Get the 5 duplicate rows that were removed
 dropped_orders = orders.loc[duplicate_mask].copy()
@@ -122,16 +120,12 @@ dropped_orders = pd.merge(
     on='product_id', how='left')
 
 # Calculate their order value
+dropped_orders['discount_pct'] = dropped_orders['discount_pct'].fillna(0)
 dropped_orders['order_value'] = (
     dropped_orders['quantity'] * dropped_orders['price'] * (1 - dropped_orders['discount_pct'] / 100)
 )
 
-print("DUPLICATE ORDER VALUE REMOVED:", round(dropped_orders['order_value'].sum(), 2))
-
-"""*Reconciliation Note*
-
-The total order value reconciled post clean up in python **(₹ 97358.30)** is different from the total value calculated in the SQL **(₹ 99860.20)** with a difference of value as **₹ 2501.90**. The difference is an attributable post data clean up by removal by 5 Duplicate Rows with rating & discount imputation having no effect on the final result. Data provided without any missing or incorrect data will help on hypothesis and analysis for Reporting.
-"""
+# print("DUPLICATE ORDER VALUE REMOVED:", round(dropped_orders['order_value'].sum(), 2))
 
 ##	Task 6 - IQR outlier detection on quantity
 
@@ -158,6 +152,7 @@ orders_clean['is_outlier'] = (
 # Print outlier rows without dropping the rows
 print("\n -- Outlier Orders --")
 print(orders_clean.loc[orders_clean['is_outlier'], ['order_id', 'quantity']])
+print("Number of outlier orders:", orders_clean['is_outlier'].sum())
 
 ## Task 7 - Hypothesis: does COD have a higher return rate?
 
@@ -262,7 +257,7 @@ print(schema_prompt)
 """1. **Hypothesis:** Orders using `payment_method` COD have a higher `returned` rate than orders using CARD or UPI.  
    If confirmed, reducing COD-related return risk could improve order profitability and support healthier growth.
 
-2. **Hypothesis:** ## Validating the Second Hypotheses that Higher `discount_pct` decreases `returned` orders rate.   
+2. **Hypothesis:** Higher 'discount_pct' is associated with a lower return rate (returned).   
    If confirmed, optimizing discount levels could help protect margins while maintaining customer demand.
 
 3. **Hypothesis:** Orders with higher `rating` have a lower `returned` rate.  
@@ -275,7 +270,8 @@ category_avg = orders_clean.groupby('payment_method')['returned'].agg(['count', 
 category_avg['mean'] = (category_avg['mean'] * 100)
 print(f"{(category_avg).round(1)}")
 
-"""**Verdict: Confirmed.** COD has a higher return rate than any other payment method, with **44.4%** of COD orders being returned, which is almost half of the orders made through COD."""
+"""**Verdict: Supported by the data.** COD has a higher return rate than any other payment method, 
+with **44.4%** of COD orders being returned, which is almost half of the orders made through COD."""
 
 ##	Task 8 - Multi-level segmentation: multi column groupby -> payment + city_tier
 # Return rate by category AND payment — simultaneously
@@ -290,14 +286,15 @@ return_by_payment['return_rate'] = (
     return_by_payment['return_rate'] * 100
 ).round(1)
 
-return_by_payment.sort_values('return_rate', ascending=False)
+print(return_by_payment.sort_values('return_rate', ascending=False))
 
 """Through Multi Segmentation, the data reveals as follows:
 
-- COD payment method used in Tier 2 cities has the highest return rate at 54.5%, creating a higher risk of return for future orders and requiring further analysis and bifurcation across other categories.
-
-- Even with a 37.5% return rate, COD payment method used in Tier 1 cities has a relatively lower risk of return compared to Tier 2 cities.
-
+- COD payment method used in Tier 2 cities has the highest return rate at 54.5%, 
+creating a higher risk of return for future orders and requiring further analysis and 
+bifurcation across other categories.
+- Even with a 37.5% return rate, COD payment method used in Tier 1 cities has a relatively 
+lower risk of return compared to Tier 2 cities.
 - The safest payment method is CARD used in Tier 1 cities, with the lowest return rate.
 
 KEY INSIGHT: COD risk is not uniform across city tiers.
@@ -308,14 +305,16 @@ KEY INSIGHT: COD risk is not uniform across city tiers.
 ## Validating the Second Hypotheses that Higher `discount_pct` decreases `returned` orders rate
 
 matrix_corr = ['rating', 'returned', 'discount_pct', 'quantity']
-
 correlated_matrix = orders_clean[matrix_corr].corr().round(2)
 
-correlated_matrix
+print(correlated_matrix)
 
-"""There are six pairs made to review the coorelation, but all the six pairs does have negligble coorelation with matrix all below 0.19 (+/-).
+"""There are six pairs made to review the coorelation, but all the six pairs 
+does have negligble coorelation with matrix all below 0.19 (+/-).
 
-**Verdict: Busted**  There is no meaningful coorelation between discount_pct and return rate as the correlation falls within the negligible range. Therefore, higher discounts do not appear to be associated with a reduction in returned orders.
+**Verdict: Busted**  There is no meaningful coorelation between discount_pct and 
+return rate as the correlation falls within the negligible range. Therefore, higher 
+discounts do not appear to be associated with a reduction in returned orders.
 """
 
 ##	Task 10 - Outlier-corrected time series
@@ -337,7 +336,7 @@ o2_corrected_monthly_order_value = (orders_clean[~orders_clean['is_outlier']]
 print("\n-- Monthly Order Value Excluding Outliers --")
 print(o2_corrected_monthly_order_value)
 
-"""Additional Analysis for Narrative"""
+"""3 Additional Analysis for Final Narrative"""
 
 # Hypothesis 3: Do higher ratings relate to lower return rates?
 
@@ -355,10 +354,9 @@ print(rating_return)
 
 """**Verdict: Busted**
 
-Return rates vary across rating groups, ranging from 16.7% for 4-star orders to 39.1% for 2-star orders. However, the pattern is not consistently decreasing with higher ratings, so the hypothesis that higher ratings are associated with fewer returns is not conclusively supported.
-
-Hypothesis 4
-Higher-value COD orders have a higher return rate than lower-value COD orders.
+Return rates vary across rating groups, ranging from 16.7% for 4-star orders to 39.1% for 
+2-star orders. However, the pattern is not consistently decreasing with higher ratings, so the 
+hypothesis that higher ratings are associated with fewer returns is not conclusively supported.
 """
 
 # Hypothesis 4: Does order value relate to return rate for COD orders?
@@ -390,7 +388,9 @@ cod_value_return['return_rate_pct'] = (
 
 print(cod_value_return)
 
-"""**Verdict: Confirmed.** The result supports an association between high order value and higher COD return rates in this dataset. It does not establish causation, and each group contains only 18 orders, so further validation would be useful."""
+"""**Verdict: Supported Descriptively.** The result supports an association between high 
+order value and higher COD return rates in this dataset. It does not establish causation, 
+and each group contains only 18 orders, so further validation would be useful."""
 
 # Compare COD return rates by city tier and order-value group
 
@@ -422,7 +422,9 @@ cod_tier_value_return
 
 """**Hypothesis verdict: Supported descriptively **
 
-The combination of Tier 2 city, COD payment, and high order value is associated with a higher return rate in this dataset. The small sample sizes mean we should validate this pattern before treating it as a stable business rule.
+The combination of Tier 2 city, COD payment, and high order value is associated with 
+a higher return rate in this dataset. The small sample sizes mean we should validate 
+this pattern before treating it as a stable business rule.
 """
 
 # Hypothesis 4: High-value COD orders in Tier 2 cities
@@ -436,37 +438,8 @@ print(
     "return rate of 87.5% (7 out of 8 orders)."
 )
 
-"""Hypothesis: High-value COD orders in Tier 2 cities have a higher return rate than other COD order-value segments."""
-
-# Hypothesis 4: High-value COD orders in Tier 2 cities
-
-cod_orders = orders_clean[
-    orders_clean['payment_method'] == 'COD'
-].copy()
-
-cod_orders['value_group'] = pd.qcut(
-    cod_orders['order_value'],
-    q=3,
-    labels=['Low Value', 'Medium Value', 'High Value'],
-    duplicates='drop'
-)
-
-hypothesis_4 = (
-    cod_orders
-    .groupby(['city_tier', 'value_group'], observed=True)
-    .agg(
-        total_orders=('returned', 'count'),
-        returned_orders=('returned', 'sum'),
-        return_rate=('returned', 'mean')
-    )
-    .reset_index()
-)
-
-hypothesis_4['return_rate_pct'] = (
-    hypothesis_4['return_rate'] * 100
-).round(1)
-
-hypothesis_4
+"""Hypothesis: High-value COD orders in Tier 2 cities have a higher return rate than 
+other COD order-value segments."""
 
 # Check order-value thresholds for COD groups
 
@@ -493,7 +466,7 @@ value_thresholds[
      'total_orders', 'returned_orders', 'return_rate_pct']
 ].round(2)
 
-value_thresholds
+print(value_thresholds)
 
 print(cod_orders.groupby('value_group', observed=True)['order_value'].agg(
     ['min', 'max']
@@ -507,15 +480,18 @@ print(pd.qcut(
     duplicates='drop'
 )[1])
 
-"""Hypothesis: High-value COD orders in Tier 2 cities have a higher return rate than other COD order-value segments.
+"""Hypothesis: High-value COD orders in Tier 2 cities have a higher return rate than other 
+COD order-value segments.
 Verdict: Supported descriptively, with a small-sample caveat.
 - High-value COD orders overall: 66.7% return rate (12 of 18).
 - High-value COD in Tier 2: 87.5% (7 of 8).
 - High-value COD in Tier 1: 50.0% (5 of 10).
-The data suggests that the combination of high order value, COD payment, and Tier 2 city is associated with elevated return risk. It does not prove causation, and the Tier 2 high-value segment has only eight orders.
+The data suggests that the combination of high order value, COD payment, and Tier 2 city is 
+associated with elevated return risk. It does not prove causation, and the Tier 2 high-value 
+segment has only eight orders.
 """
 
-# Hypothesis 4: COD order value and city-tier return risk
+# Hypothesis 5: COD order value and city-tier return risk
 
 cod_orders = orders_clean[
     orders_clean['payment_method'] == 'COD'

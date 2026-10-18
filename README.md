@@ -16,6 +16,26 @@ The total order value reconciled post clean up in python **(₹ 97358.30)** is d
 │   └── orders_clean.csv
 ├── Narrator/
 │   ├── generate_narrative.py
+"""**SITUATION**
+
+Our analytics pipeline has established a cleaned total revenue baseline of INR 97,358.30. This assessment 
+reconciles raw data to ensure accurate reporting, providing a foundation for evaluating order performance 
+and return patterns across our sales.
+
+**COMPLICATION**
+
+Duplicate records created a reconciliation delta of INR 2,501.90. Analysis reveals significant variance in 
+return rates: COD (44.40%) exceeds CARD (14.70%) and UPI (18.90%). The highest-risk segment is COD orders in 
+Tier 2 cities, with a 54.50% return rate. Specifically, high-value COD orders show an elevated return pattern, 
+most notably in Tier 2 cities where we observed 7 returns out of 8 orders. These patterns highlight a 
+concentration of risk within specific payment and geographic segments.
+
+**RESOLUTION**
+Data correction reveals that January 2026 revenue was inflated; the true peak month is March 2026, with 
+INR 20,318.90 in revenue. I recommend a measurable pilot program targeting high-value COD orders in Tier 2 cities 
+to monitor return outcomes. Additional data is required to validate these observed patternsand determine if this 
+pilot approach effectively addresses the identified segment risks.
+"""
 │   └── findings.json
 ├── Sql/
 │   ├── schema.sql

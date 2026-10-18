@@ -4,7 +4,7 @@
 
 The **Mamaearth Returns & Growth Intelligence Pipeline** is an end-to-end data analytics project designed to investigate e-commerce returns, reconcile revenue figures, identify payment-related return patterns, and generate actionable business recommendations.
 
-The project combines SQL-based data preparation and reporting, Python-based data cleaning and exploratory data analysis (EDA), data visualisation, and Generative AI-assisted narrative generation. The objective is to transform raw order data into reliable findings that can support better return-risk monitoring and business decision-making.
+The project combines SQL-based data preparation and reporting, Python-based data cleaning and exploratory data analysis (EDA), data visualization, and Generative AI-assisted narrative generation. The objective is to transform raw order data into reliable findings that can support better return-risk monitoring and business decision-making.
 
 ## Business Problem
 
@@ -25,7 +25,7 @@ e. Is the return rate particularly high for high-value COD orders in Tier 2 citi
 3. Identify duplicate records, missing values, and potential quantity outliers.
 4. Analyze revenue, payment methods, customer ratings, and return patterns.
 5. Test business hypotheses using descriptive statistics and correlation analysis.
-6. Create visualisations to communicate the main findings.
+6. Create visualizations to communicate the main findings.
 7. Use Generative AI to convert analytical findings into a structured business narrative.
 
 ## Technology Stack
@@ -33,7 +33,7 @@ e. Is the return rate particularly high for high-value COD orders in Tier 2 citi
 - **SQL / MySQL:** Database schema, data preparation, and reporting queries.
 - **Python:** Data cleaning, analysis, and reconciliation.
 - **Pandas:** Data manipulation and analysis.
-- **Matplotlib and Seaborn:** Data visualisation.
+- **Matplotlib and Seaborn:** Data visualization.
 - **Generative AI:** Structured narrative generation from analytical findings.
 - **GitHub:** Version control and project documentation.
 - **Google Colab:** Development and experimentation environment.
@@ -65,13 +65,13 @@ Masai_Course_Capstone_Project_Meenakshi/
 │   ├── seed_data.sql
 │   └── reports.sql
 │
-└── Visualisations/
+└── visualizations/
     ├── return_rate_by_payment.png
     ├── monthly_revenue_trend.png
     └── cod_return_rate_by_segment.png
 ```
 
-*Note: Confirm that the listed files and visualisation filenames match the actual repository. If the two narrative scripts serve the same purpose, consider consolidating them to avoid duplication.*
+*Note: Confirm that the listed files and visualization filenames match the actual repository. If the two narrative scripts serve the same purpose, consider consolidating them to avoid duplication.*
 
 ## Analytical Workflow
 
@@ -98,9 +98,9 @@ The Python pipeline prepares the data for reliable analysis which includes:
 
 The cleaned dataset contains **175 orders**, compared with 180 raw orders.
 
-### Part 3: Data Visualisation
+### Part 3: Data visualization
 
-The project uses visualisations to make important patterns easier to interpret:
+The project uses visualizations to make important patterns easier to interpret:
 
 1. **Return Rate by Payment Method:** Compares return rates for COD, CARD, and UPI.
 2. **Monthly Revenue Trend:** Shows monthly revenue after addressing the identified outlier-related distortion.
